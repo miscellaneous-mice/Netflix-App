@@ -1,4 +1,5 @@
 import os
+from sqlalchemy import cast, String, Integer
 from typing import Annotated
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
@@ -45,7 +46,7 @@ async def read_all(admin: admin_dependency, db: db_dependency):
     if admin is None:
         logger.warning("Not logged in as admin")
         raise HTTPException(status_code=401, details='Authentication Failed')
-    return db.query(Shows).filter(Shows.show_id <= 100).all()
+    return db.query(Shows).filter(cast(Shows.show_id, Integer) <= 100).all()
 
 @router.post("/add", status_code=status.HTTP_201_CREATED)
 async def create_show(admin: admin_dependency, db: db_dependency,

@@ -24,7 +24,7 @@ def get_logger(logger_name):
         logger: to log the required outputs
     '''
     date = str(datetime.now().date())
-    log_folder = f'C:\\LearningFastAPI\\Netflix-Shows\\logs\\{logger_name}\\'
+    log_folder = f'/Users/prateek/My Space/Projects/Netflix-App/logs/{logger_name}\\'
     file_name = f"{log_folder}\\{logger_name}_{date}.log"
 
     if not (os.path.isdir(log_folder)):

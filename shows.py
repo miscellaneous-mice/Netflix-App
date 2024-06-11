@@ -1,11 +1,12 @@
 from typing import Annotated
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, HTTPException, Path
+from sqlalchemy import cast, String, Integer
 from starlette import status
 from models import Shows
 from database import SessionLocal
 from routers.auth import get_current_user
-from mongo_database import add_history, find_history
+# from mongo_database import add_history, find_history
 from datetime import date, datetime
 from logs.app_logger import get_logger
 logger = get_logger(__name__)
@@ -35,8 +36,8 @@ async def read_all(user: user_dependency, db: db_dependency):
         raise HTTPException(status_code=401, details='Authentication Failed')
     
     logger.info("Browsing all available shows")
-    return db.query(Shows).filter(Shows.show_id <= 100)\
-    .filter(Shows.country == user.get('country')).filter(Shows.age_rating < user.get('age')).all()
+    return db.query(Shows).filter(cast(Shows.show_id, Integer) <= 100)\
+    .filter(cast(Shows.country, String) == cast(user.get('country'), String)).filter(cast(Shows.age_rating, Integer) < cast(user.get('age'), Integer)).all()
 
 
 @router.get("/search/{show_id}", status_code=status.HTTP_200_OK)
@@ -46,12 +47,12 @@ async def read_show(user: user_dependency, db: db_dependency, show_id: int = Pat
         raise HTTPException(status_code=401, details='Authentication Failed')
     
     logger.info(f"Watching show with show id: {show_id}")
-    show_model = db.query(Shows).filter(Shows.show_id == show_id)\
-        .filter(Shows.country == user.get('country')).filter(Shows.age_rating < user.get('age')).first()
+    show_model = db.query(Shows).filter(cast(Shows.show_id, Integer) == cast(show_id, Integer))\
+        .filter(cast(Shows.country, String) == cast(user.get('country'), String)).filter(cast(Shows.age_rating, Integer) < cast(user.get('age'), Integer)).first()
     
     if show_model is not None:
         today = date.today()
-        add_history(user_id=user.get('id'), show_id=show_model.show_id, watch_date=today.strftime("%d-%m-%Y"))
+        # add_history(user_id=user.get('id'), show_id=show_model.show_id, watch_date=today.strftime("%d-%m-%Y"))
         logger.info(f"Watched show with show id: {show_id}")
         return show_model
     
@@ -59,17 +60,17 @@ async def read_show(user: user_dependency, db: db_dependency, show_id: int = Pat
     raise HTTPException(status_code=404, detail='show isnt available in your country or its inappropriate for your age')
 
 
-@router.get("/history", status_code=status.HTTP_200_OK)
-async def get_user_history(user: user_dependency):
-    if user is None:
-        logger.error("Authentication failed")
-        raise HTTPException(status_code=401, details='Authentication Failed')
+# @router.get("/history", status_code=status.HTTP_200_OK)
+# async def get_user_history(user: user_dependency):
+#     if user is None:
+#         logger.error("Authentication failed")
+#         raise HTTPException(status_code=401, details='Authentication Failed')
     
-    # logger.info(f"Got the watch history for user: {user.get('id')}")
-    # return user.get('id')
-    history = find_history(int(user.get('id')))
-    logger.info(f"Got the watch history for user: {user.get('id')}")
-    return history.get('watch_history')
+#     # logger.info(f"Got the watch history for user: {user.get('id')}")
+#     # return user.get('id')
+#     history = find_history(int(user.get('id')))
+#     logger.info(f"Got the watch history for user: {user.get('id')}")
+#     return history.get('watch_history')
 
 def valid_date_format(str_date):
     try:

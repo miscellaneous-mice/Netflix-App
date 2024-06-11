@@ -6,7 +6,7 @@ from sqlalchemy import text
 import pandas as pd
 
 curr_directory = os.getcwd()
-curr_directory = curr_directory.replace("\\", "\\\\")
+
 
 month_dict = {
     "January": 1,
@@ -35,15 +35,17 @@ def to_date(x):
     return f'{year}-{month}-{day}'
 
 logger.info("Importing CSV File as dataframe")
-shows = pd.read_csv(curr_directory + '\\data\\netflix_titles.csv')
-
+shows = pd.read_csv(curr_directory + '/data/netflix_titles.csv')
+shows = shows.dropna()
 logger.info("Successfully imported CSV File as dataframe")
-shows.drop('show_id', axis=1, inplace=True)
-shows.dropna(inplace=True)
 shows['date_added'] = pd.to_datetime(shows['date_added'].apply(lambda x: to_date(x)))
+breakpoint()
 shows['age_rating'] = shows['rating'].apply(lambda x: age_rating[x])
 shows['country'] = shows['country'].apply(lambda x: x.split(', '))
 shows = shows.explode(['country'])
+shows = shows.reset_index().reset_index()
+shows = shows.drop(['show_id', 'index'], axis=1)
+shows.rename(columns={'level_0': 'show_id'}, inplace=True)
 # shows = shows.reset_index().rename(columns = {'index' : 'show_id'})
 shows['release_year'] = shows['release_year'].astype(int)
 
@@ -52,9 +54,12 @@ logger.info("Ready to be imported to Database. Altering the features of database
 with engine.connect() as conn:
     logger.info("Clearing the existing data from the table")
     conn.execute(text('TRUNCATE TABLE shows'))
+    conn.commit()
     try:
         logger.info("Adding age_rating in numerical format")
+        breakpoint()
         conn.execute(text('ALTER TABLE shows ADD age_rating int'))
+        conn.commit()
     except:
         logger.error("Column age_rating already exists")
         print("Column already exists")
@@ -65,6 +70,7 @@ with engine.connect() as conn:
     try:
         logger.info("Setting show_id as primary key for table shows")
         conn.execute(text('ALTER TABLE shows ADD PRIMARY KEY(show_id)'))
+        conn.commit()
     except:
         logger.error("show_id is already set as primary key")
         print("Primary key already exists")
@@ -74,7 +80,8 @@ with engine.connect() as conn:
 
     try:
         logger.info("show_id is set as a auto_incremental column")
-        conn.execute(text('ALTER TABLE shows MODIFY show_id INT AUTO_INCREMENT'))
+        conn.execute(text('ALTER TABLE shows MODIFY show_id serial'))
+        conn.commit()
     except:
         logger.error("Couldn't set show_id as auto_incremental column")
         print("Couldn't update primary key to auto increment")
