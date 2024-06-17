@@ -5,9 +5,9 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 from fastapi import APIRouter, Depends, HTTPException, Path
 from starlette import status
-from models import Shows, ShowsVerify, rating_to_age
-from database import SessionLocal
-from routers.owner import get_super_user
+from schema.models import Shows, ShowsVerify, rating_to_age
+from schema.database import SessionLocal
+from auth.owner import get_super_user
 from passlib.context import CryptContext
 import dotenv
 from logs.app_logger import get_logger

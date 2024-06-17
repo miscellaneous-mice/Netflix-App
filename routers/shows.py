@@ -3,9 +3,9 @@ from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, HTTPException, Path
 from sqlalchemy import cast, String, Integer
 from starlette import status
-from models import Shows
-from database import SessionLocal
-from routers.auth import get_current_user
+from schema.models import Shows
+from schema.database import SessionLocal
+from auth.auth import get_current_user
 # from mongo_database import add_history, find_history
 from datetime import date, datetime
 from logs.app_logger import get_logger

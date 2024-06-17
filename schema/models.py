@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from database import Base
+from schema.database import Base
 from sqlalchemy import String, Column, Integer, Date
 from datetime import datetime
 

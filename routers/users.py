@@ -1,11 +1,11 @@
 from typing import Annotated
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, HTTPException, Path
-from models import Users
-from database import SessionLocal
+from schema.models import Users
+from schema.database import SessionLocal
 from starlette import status
 from pydantic import BaseModel, Field
-from .auth import get_current_user
+from auth.auth import get_current_user
 from passlib.context import CryptContext
 from logs.app_logger import get_logger
 logger = get_logger(__name__)

@@ -1,6 +1,6 @@
 # from models import Shows
 import time
-from shows import user_dependency
+from routers.shows import user_dependency
 from starlette import status
 from fastapi import HTTPException, APIRouter, Path
 from pydantic import BaseModel, Field

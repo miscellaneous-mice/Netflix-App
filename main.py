@@ -1,8 +1,10 @@
-import models
+from auth import auth
+import schema.models as models
+from auth import owner
 import uvicorn
-from database import engine
-import shows, admin
-from routers import users, auth, test, owner
+from schema.database import engine
+from routers import shows, admin
+from routers import users, test
 from MW.midware import app
 from MW.utils import args
 
